@@ -20,8 +20,12 @@ create temporary tablespace TS_CINEMA_TEMP
 -- alter session set container=CINEMA;
 -- grant create role to cinema_admin;
 -- alter session set container=CDB$ROOT;
--- create role RL_CINEMA_ADMIN;
 create role RL_CINEMA_USER;
+
+--grant create session to RL_CINEMA_USER;
+
+grant execute on cinema_admin.book_place to RL_CINEMA_USER;
+grant execute on cinema_admin.cancel_booking to RL_CINEMA_USER;
 
 -- grant create profile to cinema_admin;
 create profile PF_CINEMA_USER limit
@@ -39,6 +43,31 @@ create user CINEMA_USER identified by user123
     default tablespace TS_CINEMA
     temporary tablespace TS_CINEMA_TEMP
     profile PF_CINEMA_USER
+    account unlock;
+drop user CINEMA_USER;
+
+grant RL_CINEMA_USER to CINEMA_USER;
+revoke RL_CINEMA_USER from CINEMA_USER;
+
+
+----------------------------------------
+create role RL_CINEMA_ADMIN;
+
+create profile PF_CINEMA_ADMIN limit
+    password_life_time 180 
+    sessions_per_user 3 
+    failed_login_attempts 7 
+    password_lock_time 1 
+    password_reuse_time 10
+    password_grace_time default
+    connect_time 180
+    idle_time 30;
+
+-- grant create user profile to cinema_admin;    
+create user CINEMA_ADMIN_APP identified by admin123
+    default tablespace TS_CINEMA
+    temporary tablespace TS_CINEMA_TEMP
+    profile PF_CINEMA_ADMIN
     account unlock;
 
     

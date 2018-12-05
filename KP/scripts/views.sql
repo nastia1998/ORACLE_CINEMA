@@ -1,6 +1,8 @@
 -- grant create view to cinema_admin
 create view cinemas_view as
     select * from cinema_admin.cinema;
+    
+drop view cinemas_view;
 
 select * from cinema_admin.cinemas_view;
 
@@ -10,3 +12,19 @@ create view cinemas_and_halls_view as
     on cinema.id = cinema_hall.cinema_id;
     
 select * from cinemas_and_halls_view;
+
+create view cinema_admin.show_all_seances as
+    select cinema.name, cinema.address , movie.title, seance.timetable from cinema_admin.cinema
+    join cinema_admin.cinema_hall on cinema.id = cinema_hall.cinema_id
+    join cinema_admin.seance on cinema_hall.id = seance.cinema_hall_id
+    join cinema_admin.movie on seance.movie_id = movie.id;
+    
+select * from cinema_admin.show_all_seances;
+
+select * from cinema_admin.booking;
+select * from cinema_admin.booked_places;
+select * from cinema_admin.customer;
+
+delete from cinema_admin.booked_places;
+delete from cinema_admin.booking;
+
