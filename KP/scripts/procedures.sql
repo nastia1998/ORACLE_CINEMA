@@ -224,6 +224,19 @@ as
     end;
 /
 
+create or replace procedure cinema_admin.max_cost_movie_in_all_cinemas
+(date_start date, date_end date)
+as
+    movie_title nvarchar2(50);
+    begin
+        select title into movie_title 
+        from cinema_admin.movie where title = 'Чудо';
+        dbms_output.put_line('title = ' || movie_title);
+        exception 
+        when others then dbms_output.put_line('Code: ' || SQLCODE || ' Error: ' || SQLERRM);
+    end;
+/
+
 drop procedure cinema_admin.cancel_booking;
 drop procedure cinema_admin.book_place;
 drop procedure cinema_admin.add_customer;
@@ -233,4 +246,8 @@ drop procedure cinema_admin.add_genre;
 drop procedure cinema_admin.add_movie;
 drop procedure cinema_admin.add_cinema_hall;
 drop procedure cinema_admin.add_cinema;
+drop procedure cinema_admin.max_cost_movie_in_all_cinemas;
 
+begin
+    cinema_admin.max_cost_movie_in_all_cinemas('02-01-2009' ,'03-01-2009');
+end;
