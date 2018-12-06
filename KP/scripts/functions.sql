@@ -201,7 +201,86 @@ begin
         when others then dbms_output.put_line('error in call function most popular genre in cinema: ' || 'Code: ' || SQLCODE || ' Error: ' || SQLERRM);
 end;
 
+create or replace function cinema_admin.max_movie_all_cinemas_time
+return nvarchar2
+as
+    movie_title nvarchar2(50) := '-';
+    begin
+        select movie.title into movie_title from cinema_admin.movie
+                 inner join cinema_admin.seance on movie.id = seance.movie_id
+                 inner join cinema_admin.place on seance.id = place.seance_id where place.cost = (select max(place.cost) from cinema_admin.place inner join cinema_admin.booked_places on place.id = booked_places.place_id)
+                 fetch next 1 row only;
+        if movie_title != '-' then
+            return(movie_title);
+        else return '';
+        end if;        
+        exception 
+        when no_data_found then dbms_output.put_line('Не было найдено фильма. ');
+        when others then dbms_output.put_line('Code: ' || SQLCODE || ' Error: ' || SQLERRM || 'in function');
+    end;
+/
+
+declare 
+    movie_title nvarchar2(50);
+begin
+    movie_title := cinema_admin.max_movie_all_cinemas_time;
+        dbms_output.put_line('Самый кассовый фильм среди всех кинотеатров сети за все время: ' || movie_title);
+    exception 
+        when others then dbms_output.put_line('error in call: ' || 'Code: ' || SQLCODE || ' Error: ' || SQLERRM);
+end;
+
+create or replace function cinema_admin.get_most_average_attendance
+(date_start date, date_end date)
+return nvarchar2
+as
+    count_booked_places number;
+    count_places number;
+    count_screening number;
+    get_average_number number;
+    max_cinema_name nvarchar2(50);
+    -- курсор со всеми кинотеатрами
+    cursor c is select cinema.name, cinema.address from cinema_admin.cinema;
+    counter_for_cinemas c%rowtype;
+    begin
+        for counter_for_cinemas in c
+        loop
+            count_booked_places := cinema_admin.get_attendance_of_cinema(counter_for_cinemas.name, counter_for_cinemas.address, date_start, date_end);
+            dbms_output.put_line('Количество проданных билетов в кинотеатре за определенный период: ' || count_booked_places);
+            count_places := cinema_admin.get_capacity_of_cinema(counter_for_cinemas.name, counter_for_cinemas.address);
+            dbms_output.put_line('Вместимость в кинотеатре: ' || count_places);
+            count_screening := cinema_admin.get_count_screening_of_cinema(counter_for_cinemas.name, counter_for_cinemas.address, date_start, date_end);
+            dbms_output.put_line('Количество показов за определенное время: ' || count_screening);
+            if count_places != 0 and count_screening != 0 then
+                get_average_number := (count_booked_places / count_places) / count_screening * 100;
+                dbms_output.put_line('Средняя заполняемость кинотеатра '|| counter_for_cinemas.name ||' = ' || get_average_number);
+                dbms_output.put_line('-------------------------------------');
+                insert into cinema_admin.temp_avg_attendence(temp_name, temp_avg_att)
+                    values (counter_for_cinemas.name, get_average_number);
+            else dbms_output.put_line('деление на 0');
+            end if;
+        end loop;      
+        select temp_avg_attendence.temp_name into max_cinema_name from cinema_admin.temp_avg_attendence where temp_avg_attendence.temp_avg_att = (select max(temp_avg_attendence.temp_avg_att) from cinema_admin.temp_avg_attendence);
+        delete from cinema_admin.temp_avg_attendence;
+        return max_cinema_name;
+        --return get_average_number;
+     exception
+        when others then dbms_output.put_line('error in function max average number of cinema: ' || 'Code: ' || SQLCODE || ' Error: ' || SQLERRM);
+    end;
+/
+
+declare 
+    max_cinema_name nvarchar2(50);
+begin
+    max_cinema_name := cinema_admin.get_most_average_attendance('02-01-2019', '05-01-2019');
+        dbms_output.put_line('Самый заполняемый кинотеатр за сезон среди всех кинотеатров: ' || max_cinema_name);
+    exception 
+        when others then dbms_output.put_line('error in call function average number in cinema: ' || 'Code: ' || SQLCODE || ' Error: ' || SQLERRM);
+end;
+
 select * from cinema_admin.booked_places;
+select * from cinema_admin.movie_genre;
+select * from cinema_admin.movie;
+select * from cinema_admin.genre;
 
 drop function cinema_admin.max_cost_movie_in_all_cinemas; 
 drop function cinema_admin.get_attendance_of_cinema;
