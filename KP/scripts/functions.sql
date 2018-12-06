@@ -137,6 +137,70 @@ begin
         when others then dbms_output.put_line('error in call function average number in cinema: ' || 'Code: ' || SQLCODE || ' Error: ' || SQLERRM);
 end;
 
+create or replace function cinema_admin.max_cost_movie_in_one_cinema
+(cinema_name nvarchar2, cinema_address nvarchar2, date_start date, date_end date)
+return nvarchar2
+as
+    movie_title nvarchar2(50) := '-';
+    begin
+        select movie.title into movie_title from cinema_admin.movie
+                 inner join cinema_admin.seance on movie.id = seance.movie_id
+                 inner join cinema_admin.cinema_hall on seance.cinema_hall_id = cinema_hall.id
+                 inner join cinema_admin.cinema on cinema_hall.cinema_id = cinema.id
+                 inner join cinema_admin.place on seance.id = place.seance_id
+                 where place.cost = (select max(place.cost) from cinema_admin.place inner join cinema_admin.booked_places on place.id = booked_places.place_id)
+                 and (seance.timetable between to_date(date_start) and (date_end))
+                 and (cinema.name = cinema_name and cinema.address = cinema_address) fetch next 1 row only;
+        if movie_title != '-' then
+            return(movie_title);
+        else return '';
+        end if;        
+        exception 
+        when no_data_found then dbms_output.put_line('Не было найдено фильма. Проверьте промежуток дат для сезона');
+        when others then dbms_output.put_line('error in function max cost movie in one cinema Code: ' || SQLCODE || ' Error: ' || SQLERRM);
+    end;
+/
+
+declare 
+    movie_title nvarchar2(50);
+begin
+    movie_title := cinema_admin.max_cost_movie_in_one_cinema('Москва', 'г.Минск, пр-т Победителей, 13', '02-01-2019' ,'05-01-2019');
+        dbms_output.put_line('Самый кассовый фильм за сезон в определенном кинотеатре: ' || movie_title);
+    exception 
+        when others then dbms_output.put_line('error in call function mas cost movie in one cinema: ' || 'Code: ' || SQLCODE || ' Error: ' || SQLERRM);
+end;
+
+create or replace function cinema_admin.most_popular_genre_in_cinema
+(cinema_name nvarchar2, cinema_address nvarchar2)
+return nvarchar2
+as
+    genre_name nvarchar2(20);
+    begin
+        select (genre.name) into genre_name from cinema_admin.genre
+        inner join cinema_admin.movie_genre on genre.id = movie_genre.genre_id
+        inner join cinema_admin.movie on movie_genre.movie_id = movie.id
+        inner join cinema_admin.seance on movie.id = seance.movie_id
+        inner join cinema_admin.cinema_hall on seance.cinema_hall_id = cinema_hall.id 
+        inner join cinema_admin.cinema on cinema_hall.cinema_id = cinema.id
+        inner join cinema_admin.place on seance.id = place.seance_id
+        inner join cinema_admin.booked_places on place.id = booked_places.place_id
+        where (cinema.name = cinema_name and cinema.address = cinema_address)
+        and place.cost = (select max(place.cost) from cinema_admin.place inner join cinema_admin.booked_places on place.id = booked_places.place_id);
+        return genre_name;
+        exception
+        when others then dbms_output.put_line('error in function the most populat genre in cinema: ' || 'Code: ' || SQLCODE || ' Error: ' || SQLERRM);
+    end;
+/
+
+declare 
+    movie_genre nvarchar2(20);
+begin
+    movie_genre := cinema_admin.most_popular_genre_in_cinema('Москва', 'г.Минск, пр-т Победителей, 13');
+        dbms_output.put_line('Самый популярный жанр в заданном кинотеатре: ' || movie_genre);
+    exception 
+        when others then dbms_output.put_line('error in call function most popular genre in cinema: ' || 'Code: ' || SQLCODE || ' Error: ' || SQLERRM);
+end;
+
 select * from cinema_admin.booked_places;
 
 drop function cinema_admin.max_cost_movie_in_all_cinemas; 
