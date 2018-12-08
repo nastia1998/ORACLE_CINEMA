@@ -116,6 +116,13 @@ create table places_by_row_and_place
 )
 tablespace TS_CINEMA;
 
+create table temp_avg_attendence
+(
+    temp_name nvarchar2(50),
+    temp_avg_att number
+)
+tablespace TS_CINEMA;
+
 drop table booked_places;
 drop table booking;
 drop table customer;
@@ -127,4 +134,5 @@ drop table movie;
 drop table cinema_hall;
 drop table cinema;
 drop table places_by_row_and_place;
+drop table temp_avg_attendence;
 

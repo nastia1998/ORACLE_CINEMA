@@ -14,10 +14,10 @@ delete from cinema_admin.cinema;
 
 
 begin
-    cinema_admin.add_cinema_hall(4, 'Золотой', 10, 10);
-    cinema_admin.add_cinema_hall(2, 'Платина', 10, 15);
-    cinema_admin.add_cinema_hall(20, 'Бирюза', 15, 30);
-    cinema_admin.add_cinema_hall(2, 'Платина', 10, 15);
+    --cinema_admin.add_cinema_hall(4, 'Золотой', 10, 10);
+    --cinema_admin.add_cinema_hall(2, 'Платина', 10, 15);
+    --cinema_admin.add_cinema_hall(20, 'Бирюза', 15, 30);
+    cinema_admin.add_cinema_hall(2, 'Золотой', 10, 10);
 end;
 select * from cinema_admin.cinema_hall;
 
@@ -61,8 +61,19 @@ begin
 end;
 select * from cinema_admin.customer;
 
-
+--(cinema_hall_id_a number, movie_id_a number, timetable_a date, roww_a number, place_a number, cost_a number) 
+-- alter session set nls_date_format = 'dd-mm-yyyy hh24:mi:ss'
 begin
-    cinema_admin.add_seance_and_places (2, 1, '04-01-2019', 10, 12, 5);
+    --cinema_admin.add_seance_and_places (2, 1, '04-01-2019', 10, 12, 5);
+    --cinema_admin.add_seance_and_places (2, 2, to_date('04-01-2019 12:00:00', 'dd-mm-yyyy hh24:mi:ss'), 10, 10, 7);
+    cinema_admin.add_seance_and_places (2, 1, to_date('08-01-2019 10:00', 'dd-mm-yyyy hh24:mi'), 10, 8, 3);
 end;
+delete from cinema_admin.place;
+delete from cinema_admin.seance;
+
+select * from cinema_admin.movie;
 select * from cinema_admin.seance;
+select * from cinema_admin.booking;
+select * from cinema_admin.place;
+select * from cinema_admin.cinema;
+select * from cinema_admin.cinema_hall;

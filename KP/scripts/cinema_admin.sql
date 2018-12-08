@@ -27,6 +27,8 @@ create role RL_CINEMA_USER;
 grant execute on cinema_admin.book_place to RL_CINEMA_USER;
 grant execute on cinema_admin.cancel_booking to RL_CINEMA_USER;
 
+grant execute on cinema_admin.user_package to RL_CINEMA_USER;
+
 -- grant create profile to cinema_admin;
 create profile PF_CINEMA_USER limit
     password_life_time 180 

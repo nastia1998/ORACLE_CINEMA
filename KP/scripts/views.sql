@@ -21,10 +21,4 @@ create view cinema_admin.show_all_seances as
     
 select * from cinema_admin.show_all_seances;
 
-select * from cinema_admin.booking;
-select * from cinema_admin.booked_places;
-select * from cinema_admin.customer;
-
-delete from cinema_admin.booked_places;
-delete from cinema_admin.booking;
 
